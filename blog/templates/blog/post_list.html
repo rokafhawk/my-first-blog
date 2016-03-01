@@ -1,22 +1,65 @@
-    <html>
-        <head>
-            <title>Django Girls blog</title>
-        </head>
-        <body>
-            <div>
-                <h1><a href="">Django Girls Blog</a></h1>
-            </div>
+<!DOCTYPE html> 
+<html>
+<head> 
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+<title>Daum Mashup 예제: 간단 검색</title> 
+<!--<script type="text/javascript" src="js/jquery-1.6.4.js"></script>-->
+<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="http://apis.daum.net/maps/maps3.js?apikey=3841ec92b987ff5235e3963bb9bf41fd" charset="utf-8"></script>
+<script type="text/javascript"> 
 
-            <div>
-                <p>published: 14.06.2014, 12:14</p>
-                <h2><a href="">My first post</a></h2>
-                <p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-            </div>
+var map;
 
-            <div>
-                <p>published: 14.06.2014, 12:14</p>
-                <h2><a href="">My second post</a></h2>
-                <p>Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut f.</p>
-            </div>
-        </body>
-    </html>
+function init() {
+  /* 맵 객체 생성 */
+  map = new daum.maps.Map(document.getElementById('map'), {
+    center: new daum.maps.LatLng(37.537123, 127.005523),
+    level: 2
+  });
+
+  /* 마커 객체 생성 */
+  var marker = new daum.maps.Marker({
+    position: map.getCenter()
+  });
+  marker.setMap(map);
+  
+  var markerImage = document.getElementsByTagName('map')[0];
+
+  /* 이벤트 추가
+   * 클릭시 검색 수행 */
+  markerImage.addEventListener("click", function() {    
+    var url = "http://apis.daum.net/search/web";
+    var result = "";
+    url += "?output=json";
+    url += "&apikey=3841ec92b987ff5235e3963bb9bf41fd";
+    url += "&q=daum";
+    url += "&callback=?";
+    
+    $.getJSON(url,function(data) {
+      if (data.channel != undefined){
+        for (var i in data.channel.item){          
+          result += "title -> " + data.channel.item[i].title + "<br>";          
+        }   
+      }      
+    }).error(function(XMLHttpRequest, textStatus, errorThrown)
+    {          
+      result = textStatus;
+    }).complete(function(){
+      $("#results").html(result);                                    
+    });
+  });
+
+  var infowindow_only = new daum.maps.InfoWindow({
+    position: new daum.maps.LatLng(37.537263, 127.005523),
+    content: '<p style="margin:7px 12px;font-size:12px">마커를 클릭해보세요.</p>'
+  });
+  infowindow_only.open(map);
+}
+</script> 
+</head> 
+<body onload="init()">
+  <div id="map" style="width:600px;height:600px;"></div> 
+  <div id="results"></div> 
+</body> 
+</html> 
+
